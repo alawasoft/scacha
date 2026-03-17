@@ -1,0 +1,40 @@
+package build
+
+import mill._
+import mill.scalalib._
+import mill.scalanativelib._
+
+object scacha extends ScalaNativeModule {
+  def scalaVersion = "3.8.1"
+  def scalaNativeVersion = "0.5.10"
+
+  def scalacOptions = Seq(
+    "-deprecation",
+    "-feature",
+    "-unchecked",
+    "-Werror"
+  )
+
+  def nativeMultithreading = Some(true)
+
+  def mvnDeps = Seq(
+    mvn"org.typelevel::cats-effect::3.7.0-RC1",
+    mvn"com.monovore::decline::2.6.0"
+  )
+
+  object test extends ScalaNativeTests with TestModule.Munit {
+    def mvnDeps = Seq(
+      mvn"org.typelevel::munit-cats-effect::2.2.0-RC1"
+    )
+  }
+
+  def dist(): Command[PathRef] = Task.Command {
+    val binary = nativeLink()
+    val distDir = moduleDir / os.up / "dist"
+    os.makeDir.all(distDir)
+    val target = distDir / "scacha"
+    os.copy.over(binary.path, target)
+    os.perms.set(target, os.PermSet.fromString("rwxr-xr-x"))
+    PathRef(target)
+  }
+}
