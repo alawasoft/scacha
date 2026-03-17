@@ -5,6 +5,7 @@ import mill.scalalib._
 import mill.scalanativelib._
 
 object scacha extends ScalaNativeModule {
+  def millSourcePath = super.millSourcePath / os.up
   def scalaVersion = "3.8.1"
   def scalaNativeVersion = "0.5.10"
 
